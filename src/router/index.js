@@ -7,7 +7,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/GoodsList',
+      path: '/',
       name: 'GoodsList',
       component: () => import('@/views/GoodsList')
     }

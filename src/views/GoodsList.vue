@@ -15,9 +15,9 @@
               <div class="filter" id="filter">
                 <dl class="filter-price">
                   <dt>价格区间:</dt>
-                  <dd><a href="javascript:void(0)">选择价格</a></dd>
-                  <dd>
-                    <a href="javascript:void(0)">￥ 0 - 100 元</a>
+                  <dd><a href="javascript:void(0)" @click="selectFilter('all')" :class="{'cur':currentIndex == 'all'}">选择价格</a></dd>
+                  <dd v-for="(item,index) in priceFilter" @click="selectFilter(index,item)">
+                    <a href="javascript:void(0)" :class="{'cur':currentIndex == index}">￥ {{item.startPrice}} - {{item.endPrice}} 元</a>
                   </dd>
                 </dl>
               </div>
@@ -26,7 +26,7 @@
               <div class="accessory-list-wrap">
                 <div class="accessory-list col-4">
                   <ul>
-                    <li v-for="item in goodsList">
+                    <li v-for="item in filterList">
                       <div class="pic">
                         <a href="#"><img :src="'/static/goods/'+item.productImage" alt=""></a>
                       </div>
@@ -53,6 +53,7 @@
   import NavHeader from '@/components/NavHeader'
   import NavFooter from '@/components/NavFooter'
   import NavBreader from '@/components/NavBreader'
+  import axios from  'axios'
   export default {
       components: {
         NavHeader,
@@ -61,74 +62,43 @@
       },
       data() {
           return {
-            goodsList:[
-              {
-                "productId":"10001",
-                "productName":"小米空气净化器 2",
-                "salePrice":"699",
-                "productImage":"小米空气净化器 2.jpg"
-              },
-              {
-                "productId":"10002",
-                "productName":"米家空气净化器Pro",
-                "salePrice":"1499",
-                "productImage":"米家空气净化器Pro.jpg"
-              },
-              {
-                "productId":"10003",
-                "productName":"米家PM2.5检测仪",
-                "salePrice":"399",
-                "productImage":"米家PM2.5检测仪.jpg"
-              },
-              {
-                "productId":"10004",
-                "productName":"九号平衡车",
-                "salePrice":"1999",
-                "productImage":"九号平衡车.jpg"
-              },
-              {
-                "productId":"10005",
-                "productName":"小米路由器 3",
-                "salePrice":"139",
-                "productImage":"小米路由器 3.jpg"
-              },
-              {
-                "productId":"10006",
-                "productName":"米家压力 IH 电饭煲",
-                "salePrice":"999",
-                "productImage":"米家压力 IH 电饭煲.jpg"
-              },
-              {
-                "productId":"10007",
-                "productName":"米家IH电饭煲",
-                "salePrice":"399",
-                "productImage":"米家IH电饭煲.jpg"
-              },
-              {
-                "productId":"10008",
-                "productName":"米家恒温电水壶",
-                "salePrice":"199",
-                "productImage":"米家恒温电水壶.jpg"
-              },
-              {
-                "productId":"10009",
-                "productName":"米家小白智能摄像机",
-                "salePrice":"399",
-                "productImage":"米家小白智能摄像机.jpg"
-              },
-              {
-                "productId":"10010",
-                "productName":"Yeelight床头灯",
-                "salePrice":"249",
-                "productImage":"Yeelight床头灯.jpg"
-              }
-            ]
+            goodsList:[],
+            priceFilter:[
+              {startPrice:0,endPrice:1000.00},
+              {startPrice:1000.00,endPrice:2000.00},
+              {startPrice:2000.00,endPrice:3000.00},
+              {startPrice:3000.00,endPrice:4000.00},
+              {startPrice:4000.00,endPrice:5000.00},
+              {startPrice:5000.00,endPrice:6000.00}
+            ],
+            currentIndex:'all',
+            currentPrice:{},
           }
       },
-      mounted() {
-
+      computed:{
+        filterList(){
+          let {startPrice, endPrice} = this.currentPrice;
+          if(!endPrice){
+            return this.goodsList
+          }
+          let filterList = this.goodsList.filter(goods => {
+            return goods.salePrice > startPrice && goods.salePrice < endPrice
+          })
+          console.log(filterList)
+          return filterList
+        }
       },
-      methods: {}
+      mounted() {
+        axios.get('http://localhost:3000/goodsList').then(res => {
+          this.goodsList = res.data.result;
+        })
+      },
+      methods: {
+        selectFilter(index, item){
+          this.currentIndex = index;
+          this.currentPrice = item || {};
+        }
+      }
   }
 </script>
 
